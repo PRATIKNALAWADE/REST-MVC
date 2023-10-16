@@ -1,57 +1,8 @@
-const express = require('express');
-
-const productRoute = require('./routes/productRoute');
-
-const app = express();
-
-const errorMiddleware = require('./middleware/errorMiddleware');
-
-var cors = require('cors')
 
 
+const Product = require('../models/productModel');
 
-require('dotenv').config()
-
-const MONGO_URL = process.env.Mongo_URL;
-//console.log(MONGO_URL);
-const PORT = process.env.PORT;
-
-
-app.use(express.json());
-app.use(express.urlencoded({extended:false}));
-
-app.use(cors())
-
-
-//middleware
-app.use('/api/products',productRoute);
-
-app.use(errorMiddleware);
-
-//connect with db
-const mongoose = require('mongoose');
-
-mongoose.connect(MONGO_URL)
-.then(()=>{
-    console.log("connected to mongoDB");
-    app.listen(PORT,()=>console.log(`Server running on port ${PORT}`));
-
-   }
-    ).catch((error)=>{
-        console.log(error)
-    });
-
-
-//declaring app routes
-app.get('/',(req,res)=>{
-    res.send("Hello bhidu");
-})
-
-app.get('/blog',(req,res)=>{
-    res.send("Blog");
-})
-
-app.get('/products',async(req,res)=>{
+const getProducts =async(req,res)=>{
     try {
         const products =await Product.find({
 
@@ -63,9 +14,12 @@ app.get('/products',async(req,res)=>{
         res.status(500).json({message:error.message});
     }
 
-})
+}
 
-app.get('/products/:id',async(req,res)=>{
+
+
+
+const getProductsById = async(req,res)=>{
     try {
         const {id} = req.params;
 
@@ -77,11 +31,9 @@ app.get('/products/:id',async(req,res)=>{
         res.status(500).json({message:error.message});
     }
 
-})
+}
 
-
-//update
-app.put('/products/:id',async(req,res)=>{
+const updateProduct = async(req,res)=>{
     try {
         const {id} = req.params;
 
@@ -98,11 +50,11 @@ app.put('/products/:id',async(req,res)=>{
         res.status(500).json({message:error.message});
     }
 
-})
+
+}
 
 
-//delete
-app.delete('/products/:id',async(req,res)=>{
+const deleteProduct = async(req,res)=>{
     try {
         const {id} = req.params;
 
@@ -118,10 +70,11 @@ app.delete('/products/:id',async(req,res)=>{
         res.status(500).json({message:error.message});
     }
 
-})
+}
 
 
-app.post('/products',async (req,res)=>{
+
+const addProduct = async (req,res)=>{
   
     try{
         const product = await Product.create(req.body);
@@ -130,8 +83,9 @@ app.post('/products',async (req,res)=>{
             console.log(error.message);
             res.status(500).json({message:error.message});
     }
-})
+}
 
 
-
-
+module.exports = {
+    getProducts,getProductsById,updateProduct,deleteProduct,addProduct
+}
